@@ -194,7 +194,7 @@ function getLabelChanges(newLabel, existingLabels, definedSizes) {
   const remove = [];
   for (const existingLabel of existingLabels) {
     const { name } = existingLabel;
-    if (definedSizes.includes(name)) {
+    if (!definedSizes.includes(name)) {
       if (name === newLabel) {
         add.pop();
       } else {
