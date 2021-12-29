@@ -76,9 +76,11 @@ async function main() {
   const sizeLabel = getSizeLabel(changedLines, sizes);
   console.log("Matching label:", sizeLabel);
 
+  const labels = Object.values(sizes);
   const { add, remove } = getLabelChanges(
     sizeLabel,
-    eventData.pull_request.labels
+    eventData.pull_request.labels,
+    labels
   );
 
   if (add.length === 0 && remove.length === 0) {
@@ -93,6 +95,11 @@ async function main() {
       issue_number: pull_number,
       labels: add
     });
+
+    const addedLabel = add[0];
+    if ( addedLabel === labels[labels.length - 1] ) {
+      throw new Error('This PR exceeds the recommended size of 1000 lines. Please make sure you are NOT addressing multiple issues with one PR.');
+    }
   }
 
   for (const label of remove) {
@@ -182,12 +189,12 @@ function getSizeLabel(changedLines, sizes = defaultSizes) {
   return label;
 }
 
-function getLabelChanges(newLabel, existingLabels) {
+function getLabelChanges(newLabel, existingLabels, definedSizes) {
   const add = [newLabel];
   const remove = [];
   for (const existingLabel of existingLabels) {
     const { name } = existingLabel;
-    if (name.startsWith("size/")) {
+    if (definedSizes.includes(name)) {
       if (name === newLabel) {
         add.pop();
       } else {

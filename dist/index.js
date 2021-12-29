@@ -64,7 +64,7 @@ async function main() {
 
   const octokit = new Octokit({
     auth: `token ${GITHUB_TOKEN}`,
-    userAgent: "unDemian`/size-label-action"
+    userAgent: "unDemian/size-label-action"
   });
 
   const pullRequestDiff = await octokit.pulls.get({
@@ -82,9 +82,11 @@ async function main() {
   const sizeLabel = getSizeLabel(changedLines, sizes);
   console.log("Matching label:", sizeLabel);
 
+  const labels = Object.values(sizes);
   const { add, remove } = getLabelChanges(
     sizeLabel,
-    eventData.pull_request.labels
+    eventData.pull_request.labels,
+    labels
   );
 
   if (add.length === 0 && remove.length === 0) {
@@ -99,6 +101,11 @@ async function main() {
       issue_number: pull_number,
       labels: add
     });
+
+    const addedLabel = add[0];
+    if ( addedLabel === labels[labels.length - 1] ) {
+      throw new Error('This PR exceeds the recommended size of 1000 lines. Please make sure you are NOT addressing multiple issues with one PR.');
+    }
   }
 
   for (const label of remove) {
@@ -188,12 +195,12 @@ function getSizeLabel(changedLines, sizes = defaultSizes) {
   return label;
 }
 
-function getLabelChanges(newLabel, existingLabels) {
+function getLabelChanges(newLabel, existingLabels, definedSizes) {
   const add = [newLabel];
   const remove = [];
   for (const existingLabel of existingLabels) {
     const { name } = existingLabel;
-    if (name.startsWith("size/")) {
+    if (definedSizes.includes(name)) {
       if (name === newLabel) {
         add.pop();
       } else {
@@ -5650,7 +5657,7 @@ function globrex(glob, {extended = false, globstar = false, strict = false, file
             add(`\\${c}`);
             continue;
         }
-
+        
         if (c === '|') {
             if (ext.length) {
                 add(c);
@@ -7720,7 +7727,7 @@ module.exports = require("zlib");;
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/
+/******/ 	
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -7734,7 +7741,7 @@ module.exports = require("zlib");;
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
 /******/ 		};
-/******/
+/******/ 	
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -7743,21 +7750,21 @@ module.exports = require("zlib");;
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/
+/******/ 	
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
+/******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat */
-/******/
+/******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";/************************************************************************/
-/******/
+/******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __nccwpck_require__(932);
 /******/ 	module.exports = __webpack_exports__;
-/******/
+/******/ 	
 /******/ })()
 ;
