@@ -58,7 +58,7 @@ async function main() {
 
   const octokit = new Octokit({
     auth: `token ${GITHUB_TOKEN}`,
-    userAgent: "pascalgn/size-label-action"
+    userAgent: "unDemian/size-label-action"
   });
 
   const pullRequestDiff = await octokit.pulls.get({
