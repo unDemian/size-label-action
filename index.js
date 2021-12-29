@@ -176,7 +176,7 @@ function getSizeLabel(changedLines, sizes = defaultSizes) {
   let label = null;
   for (const lines of Object.keys(sizes).sort((a, b) => a - b)) {
     if (changedLines >= lines) {
-      label = `size/${sizes[lines]}`;
+      label = `${sizes[lines]}`;
     }
   }
   return label;
