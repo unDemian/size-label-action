@@ -77,6 +77,7 @@ async function main() {
   console.log("Matching label:", sizeLabel);
 
   const labels = Object.values(sizes);
+  const biggestLabel = labels[labels.length - 1];
   const { add, remove } = getLabelChanges(
     sizeLabel,
     eventData.pull_request.labels,
@@ -85,6 +86,13 @@ async function main() {
 
   if (add.length === 0 && remove.length === 0) {
     console.log("Correct label already assigned");
+
+    for (const existingLabel of eventData.pull_request.labels) {
+      const { name } = existingLabel;
+      if ( existingLabel === biggestLabel ) {
+        throw new Error('This PR exceeds the recommended size of 1000 lines. Please make sure you are NOT addressing multiple issues with one PR.');
+      }
+    }
     return false;
   }
 
@@ -97,7 +105,7 @@ async function main() {
     });
 
     const addedLabel = add[0];
-    if ( addedLabel === labels[labels.length - 1] ) {
+    if ( addedLabel === biggestLabel ) {
       throw new Error('This PR exceeds the recommended size of 1000 lines. Please make sure you are NOT addressing multiple issues with one PR.');
     }
   }
