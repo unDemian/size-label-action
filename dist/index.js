@@ -95,7 +95,7 @@ async function main() {
 
     for (const existingLabel of eventData.pull_request.labels) {
       const { name } = existingLabel;
-      if ( existingLabel === biggestLabel ) {
+      if ( name === biggestLabel ) {
         throw new Error('This PR exceeds the recommended size of 1000 lines. Please make sure you are NOT addressing multiple issues with one PR.');
       }
     }
